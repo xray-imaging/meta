@@ -10,7 +10,7 @@ TEE = "├──"
 PIPE_PREFIX = "│   "
 SPACE_PREFIX = "    "
 
-def read(fname, add_shape=True):
+def read_hdf(fname, add_shape=True):
     """
     Get the tree view of a hdf/nxs file.
 
