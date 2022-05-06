@@ -88,7 +88,8 @@ def _add_branches(tree, meta, hdf_object, key, key1, index, last_index, prefix,
                         if  (value.dtype.kind == 'S'):
                             value = value.decode(encoding="utf-8")
                             # print(">>>>>> %s: %s" % (obj.name, value))
-                        meta.update( {name : [obj.name, value, attr] } )
+                        meta.update( {obj.name : [value, attr] } )
+                        # meta.update( {name : [obj.name, value, attr] } )
             except KeyError:
                 shape = str("-> ???External-link???")
             except IndexError:
