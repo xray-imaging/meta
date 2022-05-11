@@ -76,10 +76,6 @@ def _add_branches(tree, meta, hdf_object, key, key1, index, last_index, prefix,
                 if isinstance(obj, h5py.Dataset):
                     shape = str(obj.shape)
                     if obj.shape[0]==1:
-                        s = obj.name.split('/')
-                        name = "_".join(s)[1:]
-                        # print(s)
-                        # print(name)
                         value = obj[()][0]
                         attr = obj.attrs.get('units')
                         if attr != None:
@@ -89,7 +85,6 @@ def _add_branches(tree, meta, hdf_object, key, key1, index, last_index, prefix,
                             value = value.decode(encoding="utf-8")
                             # print(">>>>>> %s: %s" % (obj.name, value))
                         meta.update( {obj.name : [value, attr] } )
-                        # meta.update( {name : [obj.name, value, attr] } )
             except KeyError:
                 shape = str("-> ???External-link???")
             except IndexError:
