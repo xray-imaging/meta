@@ -2,7 +2,13 @@
 meta
 ====
 
-**meta** is a python library providing support to the meta data reading from a file. Currently **meta** support only hdf but other formats can be added using the same model.
+**meta** is a python library providing support for the meta data reading from a file. Currently **meta** support only hdf but other format meta-data extraction can be added using the same model.
+
+At the Advanced Photon Source Imaging Group beamlines (2-BM, 7-BM and 32-ID) **meta** supports:
+
+- `meta cli <https://github.com/xray-imaging/meta-cli>`_
+- `tomolog cli <https://tomologcli.readthedocs.io/en/latest/>`_
+- `tile <https://tile.readthedocs.io/en/latest/>`_
 
 Installation
 ============
