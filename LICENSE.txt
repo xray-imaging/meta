@@ -43,4 +43,3 @@
 # POSSIBILITY OF SUCH DAMAGE.                                             #
 # #########################################################################
 
-from meta.read import *
