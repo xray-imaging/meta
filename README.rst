@@ -40,6 +40,7 @@ Here is an example of how to use meta to transfer the full hdf meta data layout 
 tomographic data set from one hdf file to another.
 
 ::
+
     import meta
     import h5py
 
