@@ -31,3 +31,28 @@ Dependencies
 - h5py
 - numpy
 - collections
+
+
+Example
+=======
+
+Here is an example of how to use meta to transfer the full hdf meta data layout of a `DXFile <https://dxfile.readthedocs.io/en/latest/source/xraytomo.html>`_ 
+tomographic data set from one hdf file to another.
+
+::
+    import meta
+    import h5py
+
+    file_name_raw = 'data.h5'
+    file_name_rec = 'data_new.h5'
+
+    tree, meta_dict = meta.read_hdf(file_name_raw)
+
+    hf = h5py.File(file_name_rec, 'w')
+    for key, value in meta_dict.items():
+        # print(key, value)
+        dset = hf.create_dataset(key, data=value[0])
+        if value[1] is not None:
+            dset.attrs['units'] = value[1]
+
+    hf.close()
