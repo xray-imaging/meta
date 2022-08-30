@@ -123,6 +123,10 @@ def _add_branches(tree, meta, hdf_object, key, key1, index, last_index, prefix,
                     if obj.shape[0]==1:
                         value = obj[()][0]
                         attr = obj.attrs.get('units')
+                        # print(">>>>>> Name: %s - value: %s - attr: %s" % (obj.name, value, attr))
+                        if isinstance(value, (bytes, bytearray)):
+                            value = value.decode(encoding="utf-8")
+                            print(">>>>>> %s: %s %s" % (obj.name, value, attr))
                         if attr != None:
                             attr = attr.decode('UTF-8')
                             # print(">>>>>> %s: %s %s" % (obj.name, value, attr))
@@ -134,6 +138,9 @@ def _add_branches(tree, meta, hdf_object, key, key1, index, last_index, prefix,
                 shape = str("-> ???External-link???")
             except IndexError:
                 shape = "None"
+            except AttributeError:
+                shape = "None"
+
     if shape is not None:
         tree.append(f"{prefix}{connector} {key1} {shape}")
     else:
