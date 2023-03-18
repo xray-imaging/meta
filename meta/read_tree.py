@@ -46,6 +46,8 @@
 import os
 import sys
 import h5py
+import numpy
+import json
 
 from collections import deque
 
@@ -54,31 +56,6 @@ ELBOW = "└──"
 TEE = "├──"
 PIPE_PREFIX = "│   "
 SPACE_PREFIX = "    "
-
-def read_hdf(fname, add_shape=True):
-    """
-    Get the tree view of a hdf/nxs file.
-
-    Parameters
-    ----------
-    file_path : str
-        Path to the file.
-    add_shape : bool
-        Including the shape of a dataset to the tree if True.
-
-    Returns
-    -------
-    list of string
-    """
-
-    tree = deque()
-    meta = {}
-
-    with h5py.File(fname, 'r') as hdf_object:
-        _extract_hdf(tree, meta, hdf_object, add_shape=add_shape)
-    # for entry in tree:
-    #     print(entry)
-    return tree, meta
 
 def _get_subgroups(hdf_object, key=None):
     """
@@ -106,7 +83,8 @@ def _get_subgroups(hdf_object, key=None):
         list_group = sorted(list_group)
     return list_group, key
 
-def _add_branches(tree, meta, hdf_object, key, key1, index, last_index, prefix,
+
+def _add_branches(tree, hdf_object, key, key1, index, last_index, prefix,
                   connector, level, add_shape):
     """
     Supplementary method for building the tree view of a hdf5 file.
@@ -120,20 +98,8 @@ def _add_branches(tree, meta, hdf_object, key, key1, index, last_index, prefix,
                 obj = hdf_object[key_comb]
                 if isinstance(obj, h5py.Dataset):
                     shape = str(obj.shape)
-                    if obj.shape[0]==1:
-                        value = obj[()][0]
-                        attr = obj.attrs.get('units')
-                        if attr != None:
-                            attr = attr.decode('UTF-8')
-                            # print(">>>>>> %s: %s %s" % (obj.name, value, attr))
-                        if  (value.dtype.kind == 'S'):
-                            value = value.decode(encoding="utf-8")
-                            # print(">>>>>> %s: %s" % (obj.name, value))
-                        meta.update( {obj.name : [value, attr] } )
             except KeyError:
                 shape = str("-> ???External-link???")
-            except IndexError:
-                shape = "None"
     if shape is not None:
         tree.append(f"{prefix}{connector} {key1} {shape}")
     else:
@@ -142,15 +108,15 @@ def _add_branches(tree, meta, hdf_object, key, key1, index, last_index, prefix,
         prefix += PIPE_PREFIX
     else:
         prefix += SPACE_PREFIX
-    _extract_hdf(tree, meta, hdf_object, prefix=prefix, key=key_comb,
+    _make_tree_body(tree, hdf_object, prefix=prefix, key=key_comb,
                     level=level, add_shape=add_shape)
 
-def _extract_hdf(tree, meta, hdf_object, prefix="", key=None, level=0,
+
+def _make_tree_body(tree, hdf_object, prefix="", key=None, level=0,
                     add_shape=True):
     """
-    Supplementary method for extracting from a generic hdf file the meta data 
-    tree view and the 1D meta data values/units.
-    Create the tree body and a meta dictionary 
+    Supplementary method for building the tree view of a hdf5 file.
+    Create the tree body.
     """
     entries, key = _get_subgroups(hdf_object, key)
     num_ent = len(entries)
@@ -163,13 +129,47 @@ def _extract_hdf(tree, meta, hdf_object, prefix="", key=None, level=0,
                 connector = PIPE
             else:
                 connector = ELBOW if level > 1 else ""
-            _add_branches(tree, meta, hdf_object, key, entries[0], 0, 0, prefix,
+            _add_branches(tree, hdf_object, key, entries[0], 0, 0, prefix,
                           connector, level, add_shape)
         else:
             for index, key1 in enumerate(entries):
                 connector = ELBOW if index == last_index else TEE
                 if index == 0:
                     tree.append(prefix + PIPE)
-                _add_branches(tree, meta, hdf_object, key, key1, index, last_index,
+                _add_branches(tree, hdf_object, key, key1, index, last_index,
                               prefix, connector, level, add_shape)
 
+
+def get_hdf_tree(file_path, output=None, add_shape=True, display=True):
+    """
+    Get the tree view of a hdf/nxs file.
+
+    Parameters
+    ----------
+    file_path : str
+        Path to the file.
+    output : str or None
+        Path to the output file in a text-format file (.txt, .md,...).
+    add_shape : bool
+        Including the shape of a dataset to the tree if True.
+    display : bool
+        Print the tree onto the screen if True.
+
+    Returns
+    -------
+    list of string
+    """
+    hdf_object = h5py.File(file_path, 'r')
+    tree = deque()
+    _make_tree_body(tree, hdf_object, add_shape=add_shape)
+    if output is not None:
+        make_folder(output)
+        output_file = open(output, mode="w", encoding="UTF-8")
+        with output_file as stream:
+            for entry in tree:
+                print(entry, file=stream)
+    else:
+        if display:
+            for entry in tree:
+                print(entry)
+    return tree
