@@ -30,7 +30,7 @@ class Hdf5MetadataReader:
                     if obj[()].shape[0] == 1:
                         value = obj[()][0]
                         if isinstance(value, bytes):
-                            value = value.decode("utf-8")
+                            value = value.decode("utf-8", errors='ignore')
                         elif  (value.dtype.kind == 'S'):
                             value = value.decode(encoding="utf-8")
                             # print("0>>>>>>>>>>>> %s: %s" % (obj.name, value))
@@ -42,7 +42,7 @@ class Hdf5MetadataReader:
                 except AttributeError: # This is when the obj is byte so has no attribute 'shape'
                     value = obj[()] 
                     if isinstance(value, bytes):
-                        value = value.decode("utf-8")
+                        value = value.decode("utf-8", errors='ignore')
                     attr = obj.attrs.get('units')
                     if attr != None:
                         attr = attr.decode('UTF-8')
