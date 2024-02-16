@@ -48,7 +48,7 @@ tomographic data set from one hdf file to another.
     file_name_rec = 'data_new.h5'
 
     # To use it:
-    mp = meta.read_meta.Hdf5MetadataReader(fname)
+    mp = meta.read_meta.Hdf5MetadataReader(file_name_raw)
     meta_dict = mp.readMetadata()
     mp.close()
 
